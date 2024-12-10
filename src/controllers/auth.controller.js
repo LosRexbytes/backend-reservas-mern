@@ -8,32 +8,7 @@ exports.sendResetLink = async (req, res) => {
   const { email } = req.body;
 
   try {
-<<<<<<< HEAD
-    // Validación de campos obligatorios
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: 'Todos los campos son obligatorios' });
-    }
-
-    // Validación de longitud del nombre de usuario
-    if (username.length < 8 || username.length > 20) {
-      return res.status(400).json({
-        message: 'El nombre de usuario debe tener entre 8 y 20 caracteres'
-      });
-    }
-
-    // Validación de formato del correo electrónico
-    const emailRegex = /^[^\s@]+@[^\s@]+\.(com|org|net|pe|[a-z]{2})$/i;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({
-        message: 'El correo debe terminar en .com, .org, .net, .pe o un dominio de país válido.'
-      });
-    }
-
-    // Verificar si el correo ya está registrado
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'El correo ya está registrado' });
-=======
+    // Si el correo no está registrado
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado.' });
@@ -43,7 +18,7 @@ exports.sendResetLink = async (req, res) => {
     const resetLink = `http://localhost:3000/password-reset/${resetToken}`;
 
     user.resetToken = resetToken;
-    user.resetTokenExpires = Date.now() + 3600000;
+    user.resetTokenExpires = Date.now() + 3600000; // 1 hora
     await user.save();
 
     const htmlContent = `
@@ -111,7 +86,6 @@ exports.sendResetLink = async (req, res) => {
     </div>
   </body>
 </html>
-
     `;
 
     await sendEmail(email, 'Recupera tu contraseña', htmlContent);
@@ -137,6 +111,34 @@ exports.resetPassword = async (req, res) => {
       return res.status(400).json({ message: 'Token inválido o expirado.' });
     }
 
+    // Validación de contraseña
+    const passwordErrors = [];
+    if (newPassword.length < 8) {
+      passwordErrors.push("La contraseña debe tener al menos 8 caracteres.");
+    }
+    if (/\s/.test(newPassword)) {
+      passwordErrors.push("La contraseña no debe contener espacios.");
+    }
+    if (!/[A-Z]/.test(newPassword)) {
+      passwordErrors.push("La contraseña debe contener al menos una letra mayúscula.");
+    }
+    if (!/[a-z]/.test(newPassword)) {
+      passwordErrors.push("La contraseña debe contener al menos una letra minúscula.");
+    }
+    if (!/[0-9]/.test(newPassword)) {
+      passwordErrors.push("La contraseña debe contener al menos un número.");
+    }
+    if (!/[^a-zA-Z0-9]/.test(newPassword)) {
+      passwordErrors.push("La contraseña debe contener al menos un carácter especial (por ejemplo, @, #, $, %).");
+    }
+
+    if (passwordErrors.length > 0) {
+      return res.status(400).json({
+        message: 'La contraseña no cumple con los requisitos.',
+        errors: passwordErrors
+      });
+    }
+
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(newPassword, salt);
 
@@ -156,10 +158,30 @@ exports.register = async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
+    // Validación de campos obligatorios
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+    }
+  
+    // Validación de longitud del nombre de usuario
+    if (username.length < 8 || username.length > 20) {
+      return res.status(400).json({
+        message: 'El nombre de usuario debe tener entre 8 y 20 caracteres'
+      });
+    }
+  
+    // Validación de formato del correo electrónico
+    const emailRegex = /^[^\s@]+@[^\s@]+\.(com|org|net|pe|[a-z]{2})$/i;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        message: 'El correo debe terminar en .com, .org, .net, .pe o un dominio de país válido.'
+      });
+    }
+
+    // Verificar si el correo ya está registrado
     const userExist = await User.findOne({ email });
     if (userExist) {
       return res.status(400).json({ message: 'El usuario ya existe.' });
->>>>>>> a7a88d1242ed0029476f9c8257f4aba13b2798cd
     }
 
     // Validación de contraseña
@@ -194,12 +216,8 @@ exports.register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-<<<<<<< HEAD
     // Crear y guardar usuario
-    const user = new User({
-=======
     const newUser = new User({
->>>>>>> a7a88d1242ed0029476f9c8257f4aba13b2798cd
       username,
       email,
       password: hashedPassword,
@@ -208,16 +226,11 @@ exports.register = async (req, res) => {
     await newUser.save();
     res.status(201).json({ message: 'Usuario registrado exitosamente.' });
   } catch (error) {
-<<<<<<< HEAD
     console.error('Error al registrar el usuario:', error);
     res.status(500).json({
       message: 'Error al registrar el usuario',
       error: error.message
     });
-=======
-    console.error('Error al registrar el usuario:', error.message);
-    res.status(500).json({ message: 'Error al registrar el usuario.' });
->>>>>>> a7a88d1242ed0029476f9c8257f4aba13b2798cd
   }
 };
 
