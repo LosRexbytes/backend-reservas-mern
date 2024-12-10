@@ -47,6 +47,37 @@ exports.register = async (req, res) => {
   }
 };
 
+// recuperar lista de clientes
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.find();  // Recupera todos los usuarios de la base de datos
+    res.json(users);  // Envía la lista de usuarios al cliente
+  } catch (error) {
+    console.error('Error al obtener los usuarios:', error);
+    res.status(500).json({ message: 'Error al obtener los usuarios', error: error.message });
+  }
+};
+
+// eliminar usuario
+exports.deleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Verifica si el usuario existe
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    // Elimina el usuario
+    await User.findByIdAndDelete(id);
+    res.status(200).json({ message: 'Usuario eliminado con éxito' });
+  } catch (error) {
+    console.error('Error al eliminar el usuario:', error);
+    res.status(500).json({ message: 'Error al eliminar el usuario', error: error.message });
+  }
+};
+
 exports.login = async (req, res) => {
   const { usernameEmail, password } = req.body;
 
