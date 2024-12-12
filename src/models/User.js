@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
   username: { type: String, required: true, minlength: 8, maxlength: 20 },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, default: 'user' },
+  role: { type: String },
   resetToken: { type: String, default: null },
   resetTokenExpires: { type: Date, default: null }, // Nuevo campo para manejar tokens
 });

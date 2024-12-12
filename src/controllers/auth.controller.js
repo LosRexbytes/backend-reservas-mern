@@ -155,7 +155,7 @@ exports.resetPassword = async (req, res) => {
 
 // Función para registrar un nuevo usuario
 exports.register = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, role  } = req.body;
 
   try {
     // Validación de campos obligatorios
@@ -221,6 +221,7 @@ exports.register = async (req, res) => {
       username,
       email,
       password: hashedPassword,
+      role
     });
 
     await newUser.save();
