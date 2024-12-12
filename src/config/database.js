@@ -4,8 +4,7 @@ require('dotenv').config();
 //"mongodb://localhost:27017/DBHOTEL"
 const connectDB = async () => {
   try {
-    await mongoose.connect("mongodb://localhost:27017/DBHOTEL", {
-    //await mongoose.connect(process.env.MONGODB_URI, {
+    await mongoose.connect(process.env.MONGODB_URI, {
       //useNewUrlParser: true,
       //useUnifiedTopology: true,
     });
