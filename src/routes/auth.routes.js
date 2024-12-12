@@ -14,4 +14,10 @@ router.post('/register', authController.register);
 // Ruta para login de usuario
 router.post('/login', authController.login);
 
+// Ruta para mostrar lista clientes y adm
+router.get('/users', authController.getUsers);
+
+// Ruta para eliminar user o admin de la lista
+router.delete('/delete/:id', authController.deleteUser);
+
 module.exports = router;

@@ -234,24 +234,65 @@ exports.register = async (req, res) => {
   }
 };
 
-// Función para iniciar sesión (login)
-exports.login = async (req, res) => {
-  const { email, password } = req.body;
+// recuperar lista de clientes
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.find();  // Recupera todos los usuarios de la base de datos
+    res.json(users);  // Envía la lista de usuarios al cliente
+  } catch (error) {
+    console.error('Error al obtener los usuarios:', error);
+    res.status(500).json({ message: 'Error al obtener los usuarios', error: error.message });
+  }
+};
+
+// eliminar usuario
+exports.deleteUser = async (req, res) => {
+  const { id } = req.params;
 
   try {
-    const user = await User.findOne({ email });
+    // Verifica si el usuario existe
+    const user = await User.findById(id);
     if (!user) {
-      return res.status(404).json({ message: 'Usuario no encontrado.' });
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    // Elimina el usuario
+    await User.findByIdAndDelete(id);
+    res.status(200).json({ message: 'Usuario eliminado con éxito' });
+  } catch (error) {
+    console.error('Error al eliminar el usuario:', error);
+    res.status(500).json({ message: 'Error al eliminar el usuario', error: error.message });
+  }
+};
+
+// Función para iniciar sesión (login)
+exports.login = async (req, res) => {
+  const { usernameEmail, password } = req.body;
+
+  try {
+    const user = await User.findOne({
+      $or: [
+        { email: usernameEmail },
+        { username: usernameEmail }
+      ]
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: 'Usuario no encontrado' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Contraseña incorrecta.' });
+      return res.status(401).json({ message: 'Contraseña incorrecta' });
     }
 
-    res.status(200).json({ message: 'Inicio de sesión exitoso.' });
+    res.json({ 
+      username: user.username, 
+      role: user.role,
+      message: 'Inicio de sesión exitoso' 
+    });
   } catch (error) {
-    console.error('Error al iniciar sesión:', error.message);
-    res.status(500).json({ message: 'Error al iniciar sesión.' });
+    console.error('Error en el servidor:', error);
+    res.status(500).json({ message: 'Error del servidor' });
   }
 };
