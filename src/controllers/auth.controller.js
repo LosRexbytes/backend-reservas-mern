@@ -15,7 +15,7 @@ exports.sendResetLink = async (req, res) => {
     }
 
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetLink = `http://localhost:3000/password-reset/${resetToken}`;
+    const resetLink = `https://risueniosreservas.netlify.app/password-reset/${resetToken}`;
 
     user.resetToken = resetToken;
     user.resetTokenExpires = Date.now() + 3600000; // 1 hora
