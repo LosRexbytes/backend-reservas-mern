@@ -1,0 +1,1 @@
+Bienvenido al backend del sistemas de reservas de habitaciones, aqui encontraras el código de los endpoinds utilizados tanto en local como en produccion, la configuracion de la base de datos de mongoDB.
